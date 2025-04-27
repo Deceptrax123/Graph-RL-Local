@@ -2,7 +2,7 @@ import torch
 from torch_geometric.data import Data
 
 
-def create_raph_data(joint_positions_at_t, skeletal_edge_index):
+def create_graph_data(joint_positions_at_t, skeletal_edge_index):
 
     node_features = joint_positions_at_t
 

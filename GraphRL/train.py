@@ -25,6 +25,7 @@ def train(env, agent, num_episodes):
 
         while not done:
             action, _ = agent.choose_action(obs)
+
             next_obs, reward, done, info = env.step(action)
 
             agent.store_transition(obs, action, reward, next_obs, done)
@@ -74,33 +75,24 @@ if __name__ == '__main__':
         data = np.zeros((num_steps, num_joints, 3))
         t = np.arange(num_steps)
 
-        # Torso (base) moves slowly
         data[:, 0, 0] = 0.1 * np.sin(t / 100)
-        data[:, 0, 1] = 0.2 * np.cos(t / 150) + 1.0  # Start higher up
+        data[:, 0, 1] = 0.2 * np.cos(t / 150) + 1.0
         data[:, 0, 2] = t / 200
 
-        # Head relative to Torso
         data[:, 1, :] = data[:, 0, :] + np.array([0, 0.2, 0]) + 0.05 * np.sin(
-            # Simple offset + slight movement
             t / 50)[:, None] * np.array([1, 0, 1])
 
-        # Elbow relative to Torso
         data[:, 2, :] = data[:, 0, :] + np.array([0.3, 0, 0]) + 0.1 * np.cos(
-            # Simple offset + slight movement
             t / 80)[:, None] * np.array([0, 1, 0])
 
-        # Hand relative to Elbow
         data[:, 3, :] = data[:, 2, :] + np.array([0.2, 0.2, 0]) + 0.15 * np.sin(
-            # Simple offset + slight movement
             t / 40)[:, None] * np.array([1, 1, 0])
 
-        # Add some noise
         data += np.random.randn(num_steps, num_joints,
-                                3) * 0.01  # Reduced noise
+                                3) * 0.01
 
         return data
     data = generate_synthetic_joint_data(total_steps, NUM_JOINTS)
-
     try:
         env = GraphEnv(
             coordinates=data, skeletal_edge_index=edges, emg=None, force=None, window_size=window_size, torque=None
@@ -115,3 +107,7 @@ if __name__ == '__main__':
 
     agent = ActorCriticAgent(
         model=model, learning_rate=LEARNING_RATE, gamma=GAMMA, entropy_coeff=ENTROPY_COEFF)
+
+    print("Starting training...")
+    rewards_history = train(env, agent, NUM_EPISODES)
+    print("Training finished.")

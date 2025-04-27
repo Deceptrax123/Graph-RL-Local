@@ -16,8 +16,8 @@ class SpatialEncoder(Module):
                               out_channels=init_out*4, K=3)
 
     def forward(self, x, edge_index, batch):
-        x = F.prelu(self.cheb1(x, edge_index=edge_index), weight=0.2)
-        x = F.prelu(self.cheb2(x, edge_index=edge_index), weight=0.2)
+        x = F.relu(self.cheb1(x, edge_index=edge_index))
+        x = F.relu(self.cheb2(x, edge_index=edge_index))
         x = F.tanh(self.cheb3(x, edge_index=edge_index))  # Bounded
 
         x_agg = global_add_pool(x, batch=batch)

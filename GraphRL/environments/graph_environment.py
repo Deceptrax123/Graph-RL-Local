@@ -7,6 +7,7 @@ from helpers.graph_creation import create_graph_data
 
 class GraphEnv(gym.Env):
     def __init__(self, coordinates, skeletal_edge_index, emg, force, window_size, torque):
+        super(GraphEnv, self).__init__()
         self.coordinates = coordinates  # (t,markers,3)
         self.edge_index = skeletal_edge_index
         self.emg = emg  # (t,16)
@@ -14,12 +15,13 @@ class GraphEnv(gym.Env):
         self.torque = torque  # (t,num_belts,2)
         self.num_markers = 39  # 39 marker set
         self.window_size = window_size
-        self.total_time_steps = self.coordinates[0]
+        self.total_time_steps = self.coordinates.shape[0]
 
         if self.total_time_steps < (self.window_size+1):
             print("Error: Data too short for window size")
 
-        max_coord = np.max(np.abs(self.coordinates))
+        max_coord = np.max(np.absolute(self.coordinates))
+
         self.action_space = spaces.Box(
             low=-max_coord*2, high=max_coord*2, shape=(39*3,))
 
@@ -30,12 +32,13 @@ class GraphEnv(gym.Env):
         self.current_time_step = window_size-1
 
     def step(self, action):
-        if self.current_time_step+1 >= self.total_steps:
+        if self.current_time_step+1 >= self.total_time_steps:
             return self._get_obs(), 0, True, {}
 
         true_next_pos = self.coordinates[self.current_time_step+1]
-        predicted_pos_flat = action
-        predicted_pos = predicted_pos_flat.reshape(39, 3)
+        action = np.transpose(action, (1, 2, 0))
+
+        predicted_pos = action
 
         errors_per_joint = np.linalg.norm(predicted_pos-true_next_pos, axis=1)
         total_error = np.sum(errors_per_joint)
@@ -80,7 +83,7 @@ class GraphEnv(gym.Env):
             markers_t = self.coordinates[t]
 
             try:
-                graph_t = create_graph_data()
+                graph_t = create_graph_data(markers_t, self.edge_index)
                 obervation_graphs.append(graph_t)
 
             except ValueError as e:

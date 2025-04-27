@@ -7,6 +7,7 @@ import torch.nn.functional as F
 
 class SpatioTemporalActorCritic(nn.Module):
     def __init__(self, num_markers, node_dim, embedding_dim, temporal_hidden_dim, window_size):
+        super(SpatioTemporalActorCritic, self).__init__()
         self.num_markers = num_markers
         self.node_dim = node_dim
         self.spatial_hidden_dim = embedding_dim
@@ -20,9 +21,9 @@ class SpatioTemporalActorCritic(nn.Module):
         # Actor
         self.actor_fc = Linear(self.temporal_hidden_dim,
                                self.temporal_hidden_dim//2)
-        self.actor_mu = Linear(self.temporal_hidden_dim//2, self.num_markers*3)
+        self.actor_mu = Linear(self.temporal_hidden_dim//2, self.num_markers)
         self.actor_sigma = Linear(
-            self.temporal_hidden_dim//2, self.num_markers*3)
+            self.temporal_hidden_dim//2, self.num_markers)
 
         # Critic
         self.critic_fc = Linear(
