@@ -36,9 +36,8 @@ class GraphEnv(gym.Env):
             return self._get_obs(), 0, True, {}
 
         true_next_pos = self.coordinates[self.current_time_step+1]
-        action = np.transpose(action, (1, 2, 0))
 
-        predicted_pos = action
+        predicted_pos = action.reshape(self.num_markers, 3)
 
         errors_per_joint = np.linalg.norm(predicted_pos-true_next_pos, axis=1)
         total_error = np.sum(errors_per_joint)

@@ -15,20 +15,20 @@ class SpatioTemporalActorCritic(nn.Module):
         self.window_size = window_size
 
         self.spatial_encoder = SpatialEncoder()
-        self.temporal_encoder = LSTM(input_size=self.spatial_hidden_dim, hidden_size=self.temporal_hidden_dim, num_layers=3,
+        self.temporal_encoder = LSTM(input_size=self.spatial_hidden_dim, hidden_size=self.temporal_hidden_dim, num_layers=1,
                                      batch_first=True)
 
         # Actor
         self.actor_fc = Linear(self.temporal_hidden_dim,
                                self.temporal_hidden_dim//2)
-        self.actor_mu = Linear(self.temporal_hidden_dim//2, self.num_markers)
+        self.actor_mu = Linear(self.temporal_hidden_dim//2, self.num_markers*3)
         self.actor_sigma = Linear(
-            self.temporal_hidden_dim//2, self.num_markers)
+            self.temporal_hidden_dim//2, self.num_markers*3)
 
         # Critic
         self.critic_fc = Linear(
             in_features=self.temporal_hidden_dim, out_features=self.temporal_hidden_dim//2)
-        self.crtitic_value = Linear(self.temporal_hidden_dim//2, 1)
+        self.critic_value = Linear(self.temporal_hidden_dim//2, 1)
 
     def forward(self, graph_list):
         spatial_embeddings = []
@@ -38,12 +38,13 @@ class SpatioTemporalActorCritic(nn.Module):
             if graph.batch is None:
                 graph.batch = torch.zeros(graph.x.size(
                     0), dtype=torch.long, device=graph.x.device)
-
             embedding = self.spatial_encoder.forward(
                 graph.x, graph.edge_index, graph.batch)
+
             spatial_embeddings.append(embedding)
 
-        sequence = torch.stack(spatial_embeddings, dim=0).permute(0, 1, 2)
+        sequence = torch.stack(spatial_embeddings, dim=0).permute(1, 0, 2)
+
         _, (hidden, _) = self.temporal_encoder(sequence)
         sequence_embedding = hidden.squeeze(0)
 
@@ -52,6 +53,6 @@ class SpatioTemporalActorCritic(nn.Module):
         std = torch.clamp(self.actor_sigma(actor_f), -20, 2)
 
         critic_f = F.relu(self.critic_fc(sequence_embedding))
-        value = self.crtitic_value(critic_f)
+        value = self.critic_value(critic_f)
 
         return mu, std, value
