@@ -2,6 +2,7 @@
 from environments.graph_environment import GraphEnv
 from actor_critic.temporal_ac import SpatioTemporalActorCritic
 from actor_critic.ac_agent import ActorCriticAgent
+from helpers.matrix import create_data_matrix
 import torch
 import numpy as np
 import wandb
@@ -69,30 +70,8 @@ if __name__ == '__main__':
     edges = torch.tensor([[0, 1], [1, 0],
                           [0, 2], [2, 0],
                           [2, 3], [3, 2]], dtype=torch.long).t().contiguous()
-    NUM_JOINTS = 39
 
-    def generate_synthetic_joint_data(num_steps, num_joints):
-        data = np.zeros((num_steps, num_joints, 3))
-        t = np.arange(num_steps)
-
-        data[:, 0, 0] = 0.1 * np.sin(t / 100)
-        data[:, 0, 1] = 0.2 * np.cos(t / 150) + 1.0
-        data[:, 0, 2] = t / 200
-
-        data[:, 1, :] = data[:, 0, :] + np.array([0, 0.2, 0]) + 0.05 * np.sin(
-            t / 50)[:, None] * np.array([1, 0, 1])
-
-        data[:, 2, :] = data[:, 0, :] + np.array([0.3, 0, 0]) + 0.1 * np.cos(
-            t / 80)[:, None] * np.array([0, 1, 0])
-
-        data[:, 3, :] = data[:, 2, :] + np.array([0.2, 0.2, 0]) + 0.15 * np.sin(
-            t / 40)[:, None] * np.array([1, 1, 0])
-
-        data += np.random.randn(num_steps, num_joints,
-                                3) * 0.01
-
-        return data
-    data = generate_synthetic_joint_data(total_steps, NUM_JOINTS)
+    data = create_data_matrix()
     try:
         env = GraphEnv(
             coordinates=data, skeletal_edge_index=edges, emg=None, force=None, window_size=window_size, torque=None

@@ -1,0 +1,41 @@
+                        (Head - Conceptual)
+                               |
+                              C7 (Neck Base)
+                               |
+                              T10 (Upper Back / Thorax link)
+                              / \
+                             /   \
+                        LSHO-----RSHO (Shoulders)
+                         | \     / |
+                         |  STRN   | (Sternum / Chest link)
+                         |   CLAV  | (Clavicle / Shoulder girdle link)
+                         |    |    |
+                         |  RBAK   | (Lower Back)
+                         |    |    |
+                      /-------+-------\
+                     /        |        \
+                LUPA          |         RUPA  (Upper Arm)
+                 |            |            |
+                LELB          |           RELB  (Elbow)
+                 |            |            |
+                LFRM          |           RFRM  (Forearm)
+                 |            |            |
+              LWRA/LWRB       |       RWRA/RWRB (Wrist Markers - define hand link)
+                 |            |            |
+                LFIN          |           RFIN  (Hand/Finger)
+                              |
+                         [  PELVIS  ] <-- Defined by:
+                         /    |    \       LASI (L-Anterior)
+                        /     |     \      RASI (R-Anterior)
+                       /      |      \     LPSI (L-Posterior)
+                      /       |       \    RPSI (R-Posterior)
+                     /        |        \
+                  LTHIA/LTHI          RTHIA/RTHI  (Upper Thigh Markers)
+                      |                  |
+                     LKNE               RKNE      (Knee)
+                      |                  |
+                  LTIBA/LTIB          RTIBA/RTIB  (Lower Leg / Shin Markers)
+                      |                  |
+                     LANK               RANK      (Ankle)
+                     /  \               /  \
+                  LHEE  LTOE         RHEE  RTOE   (Foot Markers - Heel & Toe define foot)
