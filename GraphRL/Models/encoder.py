@@ -6,7 +6,7 @@ from torch.nn import Module
 
 
 class SpatialEncoder(Module):
-    def __init__(self, init_out=16):
+    def __init__(self, init_out=128):
         super(SpatialEncoder, self).__init__()
 
         self.cheb1 = ChebConv(in_channels=3, out_channels=init_out, K=3)

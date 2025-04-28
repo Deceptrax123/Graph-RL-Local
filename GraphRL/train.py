@@ -17,11 +17,9 @@ def train(env, agent, num_episodes):
         episode_reward = 0
         done = False
         step_count = 0
-        episode_actor_loss = 0
-        episode_critic_loss = 0
 
         if obs is None:
-            print(f"Warning episode {episode} failed to reset.")
+            print(f"Warning training episode {episode} failed to reset.")
             continue
 
         while not done:
@@ -34,34 +32,43 @@ def train(env, agent, num_episodes):
 
             episode_reward += reward
             step_count += 1
-
             if done:
                 break
 
-        actor_loss, critic_loss = agent.update()
-        episode_actor_loss += actor_loss
-        episode_critic_loss += critic_loss
+        if step_count > 0:
+            actor_loss, critic_loss = agent.update()
+        else:
+            actor_loss = 0
+            critic_loss = 0
+
         episode_rewards.append(episode_reward)
 
-        if (episode+1) % 5 == 0:
-            avg_error_per_step = (-episode_reward)/(
-                step_count*env.num_markers) if step_count > 0 and env.num_markers > 0 else 0
+        if (episode + 1) % 5 == 0:
+            episode_total_error = -episode_reward
+            avg_total_error_per_step = episode_total_error / \
+                step_count if step_count > 0 else 0
+            avg_error_per_joint_per_step = avg_total_error_per_step / \
+                env.num_markers if step_count > 0 and env.num_markers > 0 else 0
 
-            print(f"Episode: {episode+1}")
+            print(f"\n--- Training Episode {episode+1} ---")
             print(f"Steps: {step_count}")
-            print(f"Total Reward: {episode_reward}")
-            print(f"Average Marker error: {avg_error_per_step}")
-            print(f"Actor Loss: {actor_loss}")
-            print(f"Critic Loss: {critic_loss}")
+            print(f"Total Reward: {episode_reward:.2f}")
+            print(
+                f"Avg Total Error/Step (Training): {avg_total_error_per_step:.4f}")
+            print(
+                f"Avg Joint Error/Step (Training): {avg_error_per_joint_per_step:.4f}")
+            print(
+                f"Actor Loss (Training): {actor_loss:.4f}, Critic Loss (Training): {critic_loss:.4f}")
 
             wandb.log({
-                "Reward": episode_reward,
-                "Marker Error": avg_error_per_step,
-                "Actor loss": actor_loss,
-                "Critic Loss": critic_loss
-            })
+                "Training/Episode Reward": episode_reward,
+                "Training/Avg Total Error per Step": avg_total_error_per_step,
+                "Training/Avg Joint Error per Step": avg_error_per_joint_per_step,
+                "Training/Actor Loss": actor_loss,
+                "Training/Critic Loss": critic_loss,
+                "Training/Steps per Episode": step_count
+            }, step=episode+1)
 
-            # checkpoint
             save_path = f"checkpoints/run_1/model_{episode+1}.pth"
             torch.save(agent.model.state_dict(), save_path)
 
@@ -70,10 +77,9 @@ def train(env, agent, num_episodes):
 
 if __name__ == '__main__':
     window_size = 10
-
-    LEARNING_RATE = 0.0005
+    LEARNING_RATE = 0.00025
     GAMMA = 0.98
-    ENTROPY_COEFF = 0.001
+    ENTROPY_COEFF = 0.005
 
     NUM_EPISODES = 2000
 
@@ -88,7 +94,7 @@ if __name__ == '__main__':
         exit()
 
     model = SpatioTemporalActorCritic(
-        num_markers=39, node_dim=3, embedding_dim=64, temporal_hidden_dim=128, window_size=window_size)
+        num_markers=39, node_dim=3, embedding_dim=512, temporal_hidden_dim=1024, window_size=window_size)
 
     agent = ActorCriticAgent(
         model=model, learning_rate=LEARNING_RATE, gamma=GAMMA, entropy_coeff=ENTROPY_COEFF)
