@@ -2,10 +2,7 @@ import torch
 from torch_geometric.data import Data
 
 
-def create_graph_data(joint_positions_at_t, skeletal_edge_index):
-
-    node_features = joint_positions_at_t
-
+def create_graph_data(node_features, skeletal_edge_index):
     x = torch.tensor(node_features, dtype=torch.float)
     edge_index = skeletal_edge_index
 

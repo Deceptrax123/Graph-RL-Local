@@ -3,8 +3,7 @@ from environments.graph_environment import GraphEnv
 from actor_critic.temporal_ac import SpatioTemporalActorCritic
 from actor_critic.ac_agent import ActorCriticAgent
 from helpers.matrix import create_data_matrix
-import torch
-import numpy as np
+from helpers.edge_tensor import edges
 import wandb
 
 
@@ -58,7 +57,6 @@ def train(env, agent, num_episodes):
 
 
 if __name__ == '__main__':
-    total_steps = 5000
     window_size = 10
 
     LEARNING_RATE = 0.0005
@@ -66,10 +64,6 @@ if __name__ == '__main__':
     ENTROPY_COEFF = 0.001
 
     NUM_EPISODES = 2000
-
-    edges = torch.tensor([[0, 1], [1, 0],
-                          [0, 2], [2, 0],
-                          [2, 3], [3, 2]], dtype=torch.long).t().contiguous()
 
     data = create_data_matrix()
     try:
