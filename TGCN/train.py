@@ -5,13 +5,14 @@ from helpers.edge_tensor import edges
 from model import TemporalGNNModel
 from torch_geometric_temporal.signal import temporal_signal_split, StaticGraphTemporalSignal
 from torch.optim import Adam
-from hyperparameters import LR, BETAS, EPOCHS, HORIZON
+from hyperparameters import LR, BETAS, EPOCHS, HORIZON, DEVICE
 import wandb
 
 
 def train_snapshot():
     temporal_loss = 0
     for step, snapshot in enumerate(train):
+        snapshot = snapshot.to(device=device)
         output = model(snapshot.x, snapshot.edge_index)
 
         loss = loss_function(output, snapshot.y)
@@ -29,6 +30,7 @@ def train_snapshot():
 def val_snapshot():
     temporal_loss = 0
     for step, snapshot in enumerate(val):
+        snapshot = snapshot.to(device=device)
         output = model(snapshot.x, snapshot.edge_index)
 
         loss = loss_function(output, snapshot.y)
@@ -60,6 +62,7 @@ def training():
 
 
 if __name__ == '__main__':
+    device = DEVICE
 
     data_matrix = create_data_matrix()
 
@@ -72,7 +75,7 @@ if __name__ == '__main__':
 
     train, val = temporal_signal_split(temporal_loader, 0.8)
 
-    model = TemporalGNNModel()
+    model = TemporalGNNModel().to(device=device)
     loss_function = nn.MSELoss()
     optimizer = Adam(params=model.parameters(), lr=LR, betas=BETAS)
 
