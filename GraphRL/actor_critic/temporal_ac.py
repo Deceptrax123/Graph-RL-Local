@@ -18,14 +18,12 @@ class SpatioTemporalActorCritic(nn.Module):
         self.temporal_encoder = LSTM(input_size=self.spatial_hidden_dim, hidden_size=self.temporal_hidden_dim, num_layers=1,
                                      batch_first=True)
 
-        # Actor
         self.actor_fc = Linear(self.temporal_hidden_dim,
                                self.temporal_hidden_dim//2)
         self.actor_mu = Linear(self.temporal_hidden_dim//2, self.num_markers*3)
         self.actor_sigma = Linear(
             self.temporal_hidden_dim//2, self.num_markers*3)
 
-        # Critic
         self.critic_fc = Linear(
             in_features=self.temporal_hidden_dim, out_features=self.temporal_hidden_dim//2)
         self.critic_value = Linear(self.temporal_hidden_dim//2, 1)
