@@ -4,6 +4,7 @@ from actor_critic.temporal_ac import SpatioTemporalActorCritic
 from actor_critic.ac_agent import ActorCriticAgent
 from helpers.matrix import create_data_matrix
 from helpers.edge_tensor import edges
+import torch
 import wandb
 
 
@@ -42,7 +43,7 @@ def train(env, agent, num_episodes):
 
         episode_rewards.append(episode_reward)
 
-        if episode % 5 == 0:
+        if (episode+1) % 5 == 0:
             avg_error_per_step = (-episode_reward)/(
                 step_count*env.num_markers) if step_count > 0 and env.num_markers > 0 else 0
 
@@ -52,6 +53,17 @@ def train(env, agent, num_episodes):
             print(f"Average Marker error: {avg_error_per_step}")
             print(f"Actor Loss: {actor_loss}")
             print(f"Critic Loss: {critic_loss}")
+
+            wandb.log({
+                "Reward": episode_reward,
+                "Marker Error": avg_error_per_step,
+                "Actor loss": actor_loss,
+                "Critic Loss": critic_loss
+            })
+
+            # checkpoint
+            save_path = f"checkpoints/run_1/model_{episode+1}.pth"
+            torch.save(agent.model.state_dict(), save_path)
 
     return episode_rewards
 
@@ -80,6 +92,10 @@ if __name__ == '__main__':
 
     agent = ActorCriticAgent(
         model=model, learning_rate=LEARNING_RATE, gamma=GAMMA, entropy_coeff=ENTROPY_COEFF)
+
+    wandb.init(
+        project="Graph RL Pose estimation"
+    )
 
     print("Starting training...")
     rewards_history = train(env, agent, NUM_EPISODES)

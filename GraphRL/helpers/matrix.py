@@ -38,6 +38,3 @@ def create_data_matrix():
     final_points_reshaped = np.transpose(final_points, (2, 0, 1))
 
     return final_points_reshaped
-
-
-create_data_matrix()

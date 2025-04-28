@@ -7,6 +7,11 @@
 # Icon must end with two \r
 Icon
 
+#Logs
+wandb
+
+#Checkpoint files
+checkpoints
 
 # Thumbnails
 ._*
