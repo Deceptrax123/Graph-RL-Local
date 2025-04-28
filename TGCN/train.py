@@ -54,22 +54,30 @@ def training():
             "Validation Loss": val_loss
         })
 
+        if (epoch+1) % 10 == 0:
+            save_path = f"/Volumes/Vault/Smudge/IIT_Data/Motion/Checkpoints/TGCN/{epoch+1}.pth"
+            torch.save(model.state_dict(), save_path)
+
 
 if __name__ == '__main__':
 
     data_matrix = create_data_matrix()
 
     features_matrix = data_matrix[:-HORIZON]  # Horizon->Prediction steps
-    targets_matrux = data_matrix[HORIZON:]
+    targets_matrix = data_matrix[HORIZON:]
 
     edge_weight_tensor = torch.ones(size=(edges.size(0),))
     temporal_loader = StaticGraphTemporalSignal(
-        edge_index=edges, features=data_matrix, targets=data_matrix, edge_weight=edge_weight_tensor)
+        edge_index=edges, features=features_matrix, targets=targets_matrix, edge_weight=edge_weight_tensor)
 
     train, val = temporal_signal_split(temporal_loader, 0.8)
 
     model = TemporalGNNModel()
     loss_function = nn.MSELoss()
     optimizer = Adam(params=model.parameters(), lr=LR, betas=BETAS)
+
+    wandb.init(
+        project="Graph Motion using Temporal GNNs"
+    )
 
     training()
