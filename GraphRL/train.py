@@ -36,11 +36,11 @@ def train(env, agent, num_episodes):
             step_count += 1
 
             if done:
-                actor_loss, critic_loss = agent.update()
-                episode_actor_loss += actor_loss
-                episode_critic_loss += critic_loss
                 break
 
+        actor_loss, critic_loss = agent.update()
+        episode_actor_loss += actor_loss
+        episode_critic_loss += critic_loss
         episode_rewards.append(episode_reward)
 
         if (episode+1) % 5 == 0:

@@ -26,8 +26,8 @@ class GraphEnv(gym.Env):
             low=-max_coord*2, high=max_coord*2, shape=(39*3,))
 
         self.graph_observation_space = spaces.Dict({
-            'x': spaces.Box(low=-np.inf, high=np.inf),
-            'edge_index': spaces.Box(low=0, high=39, shape=(2, self.edge_index.shape[1]))
+            'x': spaces.Box(low=-np.inf, high=np.inf, shape=(39, 3), dtype=np.float32),
+            'edge_index': spaces.Box(low=0, high=39, shape=(2, 39), dtype=np.int64)
         })
         self.current_time_step = window_size-1
 
